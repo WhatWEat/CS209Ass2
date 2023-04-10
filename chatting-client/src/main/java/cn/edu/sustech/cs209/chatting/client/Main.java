@@ -20,6 +20,8 @@ public class Main extends Application {
     @Override
     public void start(Stage stage) throws IOException {
         Main.stage = stage;
+        stage.close();
+        System.out.println(getClass().toString());
         FXMLLoader fxmlLoader = new FXMLLoader(getClass().getResource("view/login.fxml"));
         stage.setScene(new Scene(fxmlLoader.load()));
         stage.setTitle("Chatting Client");

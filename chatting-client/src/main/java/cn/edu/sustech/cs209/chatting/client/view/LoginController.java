@@ -79,10 +79,17 @@ public class LoginController implements Initializable {
         String username = usernameTextfield.getText();
 
         Sender sender = new Sender(username,password,true);
+
         new Thread(sender).start();
-        /*TODO:
-           check the password
-        * */
+        //showAlert("same");
+
+    }
+    public void showAlert(String message){
+        Alert alert = new Alert(Alert.AlertType.INFORMATION);
+        alert.setTitle("提示");
+        //alert.setHeaderText("这是一个弹窗");
+        alert.setContentText("您点击了按钮！");
+        alert.showAndWait();
     }
     public void showScene() throws IOException {
         Platform.runLater(() -> {

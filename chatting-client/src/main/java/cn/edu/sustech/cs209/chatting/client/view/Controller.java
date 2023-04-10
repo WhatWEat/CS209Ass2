@@ -1,6 +1,8 @@
-package cn.edu.sustech.cs209.chatting.client;
+package cn.edu.sustech.cs209.chatting.client.view;
 
-import cn.edu.sustech.cs209.chatting.common.Message;
+import cn.edu.sustech.cs209.chatting.common.*;
+import java.io.IOException;
+import java.net.Socket;
 import java.net.URL;
 import java.util.Objects;
 import java.util.Optional;
@@ -27,24 +29,23 @@ public class Controller implements Initializable {
     @Override
     public void initialize(URL url, ResourceBundle resourceBundle) {
 
-        Dialog<String> dialog = new TextInputDialog();
-        dialog.setTitle("Login");
-        dialog.setHeaderText(null);
-        dialog.setContentText("Username:");
-
-        Optional<String> input = dialog.showAndWait();
-        if (input.isPresent() && !input.get().isEmpty()) {
-            /*
-               TODO: Check if there is a user with the same name among the currently logged-in users,
-                     if so, ask the user to change the username
-             */
-            username = input.get();
-        } else {
-            System.out.println("Invalid username " + input + ", exiting");
-            Platform.exit();
-        }
-
-        chatContentList.setCellFactory(new MessageCellFactory());
+//        Dialog<String> dialog = new TextInputDialog();
+//        dialog.setTitle("Login");
+//        dialog.setHeaderText(null);
+//        dialog.setContentText("Username:");
+//
+//        Optional<String> input = dialog.showAndWait();
+//        if (input.isPresent() && !input.get().isEmpty()) {
+//            /*
+//               TODO: Check if there is a user with the same name among the currently logged-in users,
+//                     if so, ask the user to change the username
+//             */
+//            username = input.get();
+//        } else {
+//            System.out.println("Invalid username " + input + ", exiting");
+//            Platform.exit();
+//        }
+//        chatContentList.setCellFactory(new MessageCellFactory());
     }
 
     @FXML

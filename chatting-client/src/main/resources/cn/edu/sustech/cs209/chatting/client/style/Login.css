@@ -1,0 +1,44 @@
+#loginBtn{
+    -fx-color: #ffffff;
+    -fx-padding: 5px 20px;
+    -fx-background-color: linear-gradient(to bottom, #EAFDFC 0%,#BFEAF5 3%,#CFF5E7 35%,#BFEAF5 97%,#EAFDFC 100%);
+    -fx-font-family: 'Open Sans', sans-serif;
+    -fx-font-size: 12px;
+    border-radius: 3px;
+    cursor: pointer;
+    -fx-opacity: 1;
+}
+#loginBtn:hover{
+    -fx-cursor: hand;
+    -fx-opacity: 0.5;
+}
+
+#loginBtn:pressed{
+    -fx-opacity: 1;
+    -fx-padding: 5px 20px;
+    -fx-spacing: 10px;
+    -fx-start-margin: 10px;
+    -fx-background-color: linear-gradient(to bottom, #91D8E4 0%,#EAFDFC 3%,#BFEAF5 35%,#EAFDFC 97%,#91D8E4 100%);
+    -fx-font-family: 'Open Sans', sans-serif;
+    -fx-cursor: hand;
+}
+#registerBtn{
+    -fx-color: #ffffff;
+    -fx-background-color: linear-gradient(to bottom, #EAFDFC 0%,#BFEAF5 3%,#CFF5E7 35%,#BFEAF5 97%,#EAFDFC 100%);
+    border-radius: 3px;
+    cursor: pointer;
+    -fx-opacity: 1;
+}
+#registerBtn:hover{
+    -fx-cursor: hand;
+    -fx-opacity: 0.5;
+}
+
+#registerBtn:pressed{
+    -fx-opacity: 1;
+    -fx-padding: 5px 15px;
+    -fx-spacing: 2px;
+    -fx-background-color: linear-gradient(to bottom, #91D8E4 0%,#EAFDFC 3%,#BFEAF5 35%,#EAFDFC 97%,#91D8E4 100%);
+    -fx-font-family: 'Open Sans', sans-serif;
+    -fx-cursor: hand;
+}

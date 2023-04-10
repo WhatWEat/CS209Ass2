@@ -1,6 +1,8 @@
 package cn.edu.sustech.cs209.chatting.common;
 
-public class Message {
+import java.io.Serializable;
+
+public class Message implements Serializable {
 
     private Long timestamp;
 
@@ -9,12 +11,14 @@ public class Message {
     private String sendTo;
 
     private String data;
+    private MessageType type;
 
-    public Message(Long timestamp, String sentBy, String sendTo, String data) {
+    public Message(Long timestamp, String sentBy, String sendTo, String data,MessageType type) {
         this.timestamp = timestamp;
         this.sentBy = sentBy;
         this.sendTo = sendTo;
         this.data = data;
+        this.type = type;
     }
 
     public Long getTimestamp() {
@@ -31,5 +35,24 @@ public class Message {
 
     public String getData() {
         return data;
+    }
+    public MessageType getType() {
+        return type;
+    }
+
+    public void setSentBy(String sentBy) {
+        this.sentBy = sentBy;
+    }
+
+    public void setSendTo(String sendTo) {
+        this.sendTo = sendTo;
+    }
+
+    public void setData(String data) {
+        this.data = data;
+    }
+
+    public void setType(MessageType type) {
+        this.type = type;
     }
 }

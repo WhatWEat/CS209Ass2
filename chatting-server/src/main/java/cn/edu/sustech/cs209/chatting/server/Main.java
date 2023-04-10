@@ -1,8 +1,35 @@
 package cn.edu.sustech.cs209.chatting.server;
 
-public class Main {
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.ObjectInputStream;
+import java.io.ObjectOutputStream;
+import java.net.ServerSocket;
+import java.net.Socket;
+import java.util.HashMap;
 
-    public static void main(String[] args) {
+public class Main {
+    public static HashMap<String,String> userList = new HashMap<>();
+    public static void main(String[] args) throws IOException {
         System.out.println("Starting server");
+        ServerSocket ss = new ServerSocket(25565);
+        readPassword();
+        while(true){
+            Socket s = ss.accept();
+            System.out.println("Client connect");
+            UserServer sp = new UserServer(s,userList);
+            new Thread(sp).start();
+        }
     }
+    static void readPassword(){
+        try (FileInputStream fileIn = new FileInputStream("pw.map");
+            ObjectInputStream in = new ObjectInputStream(fileIn)) {
+            userList = (HashMap<String, String>) in.readObject();
+            System.out.println("HashMap loaded from " + "pw.map");
+        } catch (IOException | ClassNotFoundException e) {
+            e.printStackTrace();
+        }
+    }
+
 }

@@ -1,6 +1,7 @@
 package cn.edu.sustech.cs209.chatting.common;
 
 import java.io.Serializable;
+import java.util.ArrayList;
 
 public class Message implements Serializable {
 
@@ -8,12 +9,21 @@ public class Message implements Serializable {
 
     private String sentBy;
 
-    private String sendTo;
+    private ArrayList<String> sendTo = new ArrayList<>();
 
     private String data;
     private MessageType type;
 
     public Message(Long timestamp, String sentBy, String sendTo, String data,MessageType type) {
+        this.timestamp = timestamp;
+        this.sentBy = sentBy;
+        this.sendTo.add(sendTo);
+        this.data = data;
+        this.type = type;
+    }
+
+    public Message(Long timestamp, String sentBy, ArrayList<String> sendTo, String data,
+        MessageType type) {
         this.timestamp = timestamp;
         this.sentBy = sentBy;
         this.sendTo = sendTo;
@@ -29,7 +39,7 @@ public class Message implements Serializable {
         return sentBy;
     }
 
-    public String getSendTo() {
+    public ArrayList<String> getSendTo() {
         return sendTo;
     }
 
@@ -44,9 +54,6 @@ public class Message implements Serializable {
         this.sentBy = sentBy;
     }
 
-    public void setSendTo(String sendTo) {
-        this.sendTo = sendTo;
-    }
 
     public void setData(String data) {
         this.data = data;

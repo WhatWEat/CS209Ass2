@@ -1,5 +1,6 @@
 package cn.edu.sustech.cs209.chatting.client;
 
+import cn.edu.sustech.cs209.chatting.client.util.Sender;
 import java.util.Objects;
 import javafx.application.Application;
 import javafx.application.Platform;
@@ -20,14 +21,22 @@ public class Main extends Application {
     @Override
     public void start(Stage stage) throws IOException {
         Main.stage = stage;
-        stage.close();
-        System.out.println(getClass().toString());
         FXMLLoader fxmlLoader = new FXMLLoader(getClass().getResource("view/login.fxml"));
         stage.setScene(new Scene(fxmlLoader.load()));
         stage.setTitle("Chatting Client");
+        stage.setOnCloseRequest(e->{
+            try {
+                Sender.close();
+            } catch (IOException ex) {
+                throw new RuntimeException(ex);
+            }
+        });
         stage.show();
     }
     public static Stage getPrimaryStage() {
         return stage;
+    }
+    public static void setStage(Stage stage){
+        Main.stage = stage;
     }
 }

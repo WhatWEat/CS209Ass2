@@ -16,12 +16,19 @@ public class Main {
         System.out.println("Starting server");
         ServerSocket ss = new ServerSocket(25565);
         readPassword();
-        while(true){
-            Socket s = ss.accept();
-            System.out.println("Client connect");
-            UserServer sp = new UserServer(s,userList);
-            new Thread(sp).start();
+        try{
+            while(true){
+                Socket s = ss.accept();
+                System.out.println("Client connect");
+                UserServer sp = new UserServer(s,userList);
+                new Thread(sp).start();
+            }
+        } catch (Exception e){
+            e.printStackTrace();
+        } finally {
+            ss.close();
         }
+
     }
     static void readPassword() throws IOException {
         try (FileInputStream fileIn = new FileInputStream("pw.map");

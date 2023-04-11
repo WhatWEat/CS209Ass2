@@ -65,9 +65,6 @@ public class LoginController implements Initializable {
         String password = passwordTextfield.getText();
         String username = usernameTextfield.getText();
 
-//        FXMLLoader fmxlLoader = new FXMLLoader(getClass().getResource("/views/main.fxml"));
-//        Parent window = (Pane) fmxlLoader.load();
-//        con = fmxlLoader.getController();
         Sender sender = new Sender(username,password);
         new Thread(sender).start();
         /*TODO:
@@ -83,13 +80,6 @@ public class LoginController implements Initializable {
         new Thread(sender).start();
         //showAlert("same");
 
-    }
-    public void showAlert(String message){
-        Alert alert = new Alert(Alert.AlertType.INFORMATION);
-        alert.setTitle("提示");
-        //alert.setHeaderText("这是一个弹窗");
-        alert.setContentText("您点击了按钮！");
-        alert.showAndWait();
     }
     public void showScene() throws IOException {
         Platform.runLater(() -> {
@@ -107,8 +97,7 @@ public class LoginController implements Initializable {
             stage.setMinHeight(300);
             ResizeHelper.addResizeListener(stage);
             stage.centerOnScreen();
-//            con.setUsernameLabel(usernameTextfield.getText());
-//            con.setImageLabel(selectedPicture.getText());
+
         });
     }
 
@@ -184,16 +173,6 @@ public class LoginController implements Initializable {
             borderPane.getChildren().add(borderPane.getChildren().size() - 1, r1);
         }
 
-    }
-
-    /* Terminates Application */
-    public void closeSystem() {
-        Platform.exit();
-        System.exit(0);
-    }
-
-    public void minimizeWindow() {
-        Main.getPrimaryStage().setIconified(true);
     }
 
     /* This displays an alert message to the user */

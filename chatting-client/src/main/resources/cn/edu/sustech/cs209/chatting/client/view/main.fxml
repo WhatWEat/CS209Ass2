@@ -6,8 +6,8 @@
 <?import javafx.scene.paint.*?>
 <?import javafx.scene.text.*?>
 
-<VBox prefHeight="600.0" prefWidth="900.0" xmlns="http://javafx.com/javafx/17.0.2-ea" xmlns:fx="http://javafx.com/fxml/1" fx:controller="cn.edu.sustech.cs209.chatting.client.view.Controller">
-    <MenuBar VBox.vgrow="NEVER">
+<VBox fx:id="vbox" prefHeight="600.0" prefWidth="900.0" xmlns="http://javafx.com/javafx/17.0.2-ea" xmlns:fx="http://javafx.com/fxml/1" fx:controller="cn.edu.sustech.cs209.chatting.client.view.Controller">
+    <MenuBar prefHeight="6.0" prefWidth="900.0" VBox.vgrow="NEVER">
         <Menu mnemonicParsing="false" text="Chat">
             <MenuItem mnemonicParsing="false" onAction="#createPrivateChat" text="New Private Chat" />
             <MenuItem mnemonicParsing="false" onAction="#createGroupChat" text="New Group Chat" />
@@ -16,14 +16,18 @@
     <SplitPane dividerPositions="0.25" focusTraversable="true" VBox.vgrow="ALWAYS">
         <ListView fx:id="chatList" prefHeight="552.0" prefWidth="176.0" />
         <SplitPane dividerPositions="0.7, 0.5" orientation="VERTICAL">
-            <ListView fx:id="chatContentList" prefHeight="406.0" prefWidth="670.0" />
+         <ScrollPane prefHeight="200.0" prefWidth="200.0">
+            <content>
+                  <ListView fx:id="chatContentList" prefHeight="370.0" prefWidth="657.0" />
+            </content>
+         </ScrollPane>
          <HBox prefHeight="398.0" prefWidth="670.0">
             <children>
              <Button maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" minWidth="43.0" mnemonicParsing="false" text="File" />
             </children>
          </HBox>
             <HBox prefHeight="100.0" prefWidth="200.0">
-                <TextArea fx:id="inputArea" prefHeight="112.0" prefWidth="602.0" HBox.hgrow="ALWAYS" />
+                <TextArea fx:id="inputArea" onKeyPressed="#enterSendMessage" prefHeight="112.0" prefWidth="602.0" HBox.hgrow="ALWAYS" />
                 <Button maxHeight="1.7976931348623157E308" mnemonicParsing="false" onAction="#doSendMessage" prefHeight="36.0" prefWidth="72.0" text="Send" />
             </HBox>
         </SplitPane>

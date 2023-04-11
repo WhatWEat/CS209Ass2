@@ -11,14 +11,17 @@ import java.util.HashMap;
 
 public class UserServer implements Runnable {
 
-    private Socket s;
+    private final Socket s;
     private ObjectInputStream in;
     private ObjectOutputStream out;
+    private String username;
     static private HashMap<String, String> userList = new HashMap<>();
-
+    /*use to save the user and password*/
+    static private HashMap<String,ObjectOutputStream> outList = new HashMap<>();
+    /*save the username corresponding socket*/
     public UserServer(Socket s, HashMap<String, String> userList) {
         this.s = s;
-        if (userList.isEmpty()) {
+        if (UserServer.userList.isEmpty()) {
             UserServer.userList = userList;
         }
     }
@@ -30,8 +33,26 @@ public class UserServer implements Runnable {
             out = new ObjectOutputStream(s.getOutputStream());
             Message msg = (Message) in.readObject();
             checkPassword(msg);
+            while(s.isConnected() && !s.isClosed()){
+                msg = (Message) in.readObject();
+                if(msg != null){
+                    switch (msg.getType()){
+                        case chat:
+                            break;
+                        case disconnect:
+                            close();
+                            break;
+                    }
+                }
+            }
         } catch (IOException | ClassNotFoundException e) {
             throw new RuntimeException(e);
+        } finally {
+            try {
+                close();
+            } catch (IOException e) {
+                throw new RuntimeException(e);
+            }
         }
     }
 
@@ -41,32 +62,29 @@ public class UserServer implements Runnable {
         switch (msg.getType()) {
             case connect:
                 if (userList.containsKey(user) & userList.containsValue(password)) {
-                    Message back = new Message(0L, "Server", user, "true", MessageType.connect);
-                    out.writeObject(back);
-                    System.out.println("right answer");
+                    send(user, "true", MessageType.connect);
+                    username = msg.getSentBy();
+                    outList.put(username,out);
+                    sendALL(new Message(0L,"Server","ALL", String.valueOf(outList.size()),MessageType.disconnect));
+                    System.out.println("right answer"+outList.size());
                 } else {
-                    Message back = new Message(0L, "Server", user, "false", MessageType.connect);
-                    out.writeObject(back);
+                    send(user, "false", MessageType.connect);
                     System.out.println("Wrong answer");
                 }
                 break;
             case register:
                 if (userList.containsKey(user)) {
-                    Message back = new Message(0L, "Server", user, "same", MessageType.register);
-                    out.writeObject(back);
+                    send(user,"same", MessageType.register);
                 } else if (password.equals("")) {
-                    Message back = new Message(0L, "Server", user, "null", MessageType.register);
-                    out.writeObject(back);
+                    send(user,"null", MessageType.register);
                 } else {
                     userList.put(user, password);
-                    Message back = new Message(0L, "Server", user, "success", MessageType.register);
-                    out.writeObject(back);
+                    send(user,"success", MessageType.register);
                     System.out.println("Register");
                     savePassword(userList);
                 }
                 break;
         }
-        out.flush();
     }
 
     static void savePassword(HashMap<String, String> userList) {
@@ -77,5 +95,29 @@ public class UserServer implements Runnable {
         } catch (IOException e) {
             e.printStackTrace();
         }
+    }
+    void send(String username,String message,MessageType type) throws IOException {
+        Message back = new Message(0L, "Server", username, message, type);
+        out.writeObject(back);
+        out.flush();
+    }
+    void sendALL(Message msg){
+        outList.values().forEach(value -> {
+            try {
+                System.out.println("发送了信号");
+                value.writeObject(msg);
+                value.flush();
+            } catch (IOException e) {
+                System.err.println("该用户已经下号了");
+                throw new RuntimeException(e);
+            }
+        });
+    }
+    void close() throws IOException {
+        outList.remove(username);
+        sendALL(new Message(0L,"Server","ALL", String.valueOf(outList.size()),MessageType.disconnect));
+        if(in != null) in.close();
+        if(out != null) out.close();
+        if(s != null || !s.isClosed()) s.close();
     }
 }

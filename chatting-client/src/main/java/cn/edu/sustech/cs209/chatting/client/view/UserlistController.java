@@ -1,7 +1,6 @@
 package cn.edu.sustech.cs209.chatting.client.view;
 
-import cn.edu.sustech.cs209.chatting.client.Main;
-import cn.edu.sustech.cs209.chatting.common.*;
+import cn.edu.sustech.cs209.chatting.common.Message;
 import java.net.URL;
 import java.util.Objects;
 import java.util.ResourceBundle;
@@ -12,31 +11,29 @@ import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
-import javafx.scene.Cursor;
 import javafx.scene.Scene;
-import javafx.scene.control.*;
-import javafx.scene.input.KeyCode;
-import javafx.scene.input.KeyEvent;
+import javafx.scene.control.Button;
+import javafx.scene.control.ComboBox;
+import javafx.scene.control.ContentDisplay;
+import javafx.scene.control.Label;
+import javafx.scene.control.ListCell;
+import javafx.scene.control.ListView;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
 import javafx.stage.Stage;
 import javafx.util.Callback;
 
-public class Controller implements Initializable {
+public class UserlistController implements Initializable {
 
-    @FXML
-    ListView<Message> chatContentList;
     @FXML
     public Label currentOnlineCnt;
     public String username;
-    @FXML
-    private VBox vbox;
-    private ObservableList<Message> messageList;
+    private ObservableList<Message> userList;
     @Override
     public void initialize(URL url, ResourceBundle resourceBundle) {
-        messageList = FXCollections.observableArrayList();
-        chatContentList.setCellFactory(new MessageCellFactory());
-        chatContentList.setItems(messageList);
+        userList = FXCollections.observableArrayList();
+//        chatContentList.setCellFactory(new MessageCellFactory());
+//        chatContentList.setItems(messageList);
 
     }
     @FXML
@@ -86,17 +83,6 @@ public class Controller implements Initializable {
      * Blank messages are not allowed.
      * After sending the message, you should clear the text input field.
      */
-    @FXML
-    public void doSendMessage() {
-        messageList.add(new Message(0L,"Server","EEE","hello",MessageType.connect));
-        // TODO
-    }
-    @FXML
-    public void enterSendMessage(KeyEvent event){
-        if (event.getCode() == KeyCode.ENTER) {
-            doSendMessage();
-        }
-    }
     /**
      * You may change the cell factory if you changed the design of {@code Message} model.
      * Hint: you may also define a cell factory for the chats displayed in the left panel, or simply override the toString method.

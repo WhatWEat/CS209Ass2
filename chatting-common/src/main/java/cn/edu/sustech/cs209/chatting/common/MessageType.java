@@ -1,5 +1,7 @@
 package cn.edu.sustech.cs209.chatting.common;
 
-public enum MessageType {
-    connect, disconnect, chat, register
+import java.io.Serializable;
+
+public enum MessageType implements Serializable {
+    connect, disconnect, chat, register, online, createGroup
 }

@@ -7,13 +7,8 @@
 <?import javafx.scene.text.*?>
 
 <VBox fx:id="vbox" prefHeight="600.0" prefWidth="250.0" xmlns="http://javafx.com/javafx/17.0.2-ea" xmlns:fx="http://javafx.com/fxml/1" fx:controller="cn.edu.sustech.cs209.chatting.client.view.UserlistController">
-    <MenuBar prefHeight="6.0" prefWidth="900.0" VBox.vgrow="NEVER">
-        <Menu mnemonicParsing="false" text="Chat">
-            <MenuItem mnemonicParsing="false" onAction="#createPrivateChat" text="New Private Chat" />
-            <MenuItem mnemonicParsing="false" onAction="#createGroupChat" text="New Group Chat" />
-        </Menu>
-    </MenuBar>
      <ListView fx:id="chatList" prefHeight="552.0" prefWidth="701.0" />
+   <Button fx:id="GroupBtn" mnemonicParsing="false" onAction="#createGroupChat" prefHeight="143.0" prefWidth="249.0" text="Group Talk" />
     <HBox id="HBox" alignment="CENTER_LEFT" spacing="5.0" VBox.vgrow="NEVER">
         <padding>
             <Insets bottom="3.0" left="3.0" right="3.0" top="3.0" />

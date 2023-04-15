@@ -1,7 +1,7 @@
 package cn.edu.sustech.cs209.chatting.server;
 
+import cn.edu.sustech.cs209.chatting.server.util.UserServer;
 import java.io.FileInputStream;
-import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.ObjectInputStream;
@@ -11,7 +11,7 @@ import java.net.Socket;
 import java.util.HashMap;
 
 public class Main {
-    public static HashMap<String,String> userList = new HashMap<>();
+    public static HashMap<String, String> userList = new HashMap<>();
     public static void main(String[] args) throws IOException {
         System.out.println("Starting server");
         ServerSocket ss = new ServerSocket(25565);

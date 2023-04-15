@@ -14,7 +14,11 @@
         </Menu>
     </MenuBar>
     <SplitPane dividerPositions="0.25" focusTraversable="true" VBox.vgrow="ALWAYS">
-        <ListView fx:id="chatList" prefHeight="552.0" prefWidth="176.0" />
+      <ScrollPane prefHeight="200.0" prefWidth="200.0">
+         <content>
+              <ListView fx:id="chatList" prefHeight="552.0" prefWidth="220.0" />
+         </content>
+      </ScrollPane>
         <SplitPane dividerPositions="0.7, 0.5" orientation="VERTICAL">
          <ScrollPane prefHeight="200.0" prefWidth="200.0">
             <content>

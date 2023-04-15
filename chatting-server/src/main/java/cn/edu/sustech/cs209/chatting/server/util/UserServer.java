@@ -1,5 +1,6 @@
-package cn.edu.sustech.cs209.chatting.server;
+package cn.edu.sustech.cs209.chatting.server.util;
 
+import cn.edu.sustech.cs209.chatting.client.util.User;
 import cn.edu.sustech.cs209.chatting.common.Message;
 import cn.edu.sustech.cs209.chatting.common.MessageType;
 import java.io.FileOutputStream;
@@ -7,6 +8,7 @@ import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.net.Socket;
+import java.util.ArrayList;
 import java.util.HashMap;
 
 public class UserServer implements Runnable {
@@ -42,6 +44,14 @@ public class UserServer implements Runnable {
                         case disconnect:
                             close();
                             break;
+                        case createGroup:
+                            switch (msg.getData()){
+                                case "private":
+                                    break;
+                                case "group":
+                                    break;
+                            }
+                            break;
                     }
                 }
             }
@@ -61,12 +71,17 @@ public class UserServer implements Runnable {
         String password = msg.getData();
         switch (msg.getType()) {
             case connect:
-                if (userList.containsKey(user) & userList.containsValue(password)) {
+                if(outList.containsKey(user)){
+                    send(user, "same", MessageType.connect);
+                    System.out.println("same user");
+                }
+                else if (userList.containsKey(user) & userList.get(user).equals(password)) {
                     send(user, "true", MessageType.connect);
                     username = msg.getSentBy();
                     outList.put(username,out);
+                    sendALL(new Message(0L,"Server","ALL", user,MessageType.online));
                     sendALL(new Message(0L,"Server","ALL", String.valueOf(outList.size()),MessageType.disconnect));
-                    System.out.println("right answer"+outList.size());
+                    System.out.println("right answer 在线人数"+outList.size()+" 上号:" + user);
                 } else {
                     send(user, "false", MessageType.connect);
                     System.out.println("Wrong answer");
@@ -102,9 +117,16 @@ public class UserServer implements Runnable {
         out.flush();
     }
     void sendALL(Message msg){
+        if(msg.getType() == MessageType.online){
+            for (String s1 : outList.keySet()) {
+
+                msg.getSendTo().add(s1);
+            }
+            System.out.println(msg.getSentBy().toString()+"的上号信息");
+        }
+        System.out.println("给全体发送了信号");
         outList.values().forEach(value -> {
             try {
-                System.out.println("发送了信号");
                 value.writeObject(msg);
                 value.flush();
             } catch (IOException e) {
@@ -113,9 +135,13 @@ public class UserServer implements Runnable {
             }
         });
     }
+    void sendGroup(Message msg){
+
+    }
     void close() throws IOException {
         outList.remove(username);
-        sendALL(new Message(0L,"Server","ALL", String.valueOf(outList.size()),MessageType.disconnect));
+        System.out.println("发送下号信息");
+        sendALL(new Message(0L,"Server",username, String.valueOf(outList.size()),MessageType.disconnect));
         if(in != null) in.close();
         if(out != null) out.close();
         if(s != null || !s.isClosed()) s.close();

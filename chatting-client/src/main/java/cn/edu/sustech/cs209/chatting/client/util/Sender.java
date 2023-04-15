@@ -2,12 +2,14 @@ package cn.edu.sustech.cs209.chatting.client.util;
 
 import cn.edu.sustech.cs209.chatting.client.Main;
 import cn.edu.sustech.cs209.chatting.client.view.*;
+import cn.edu.sustech.cs209.chatting.common.Message;
+import cn.edu.sustech.cs209.chatting.common.MessageType;
 import java.io.IOException;
-import cn.edu.sustech.cs209.chatting.common.*;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.net.Socket;
 import java.net.SocketException;
+import java.util.ArrayList;
 import javafx.application.Platform;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Scene;
@@ -55,11 +57,28 @@ public class Sender implements Runnable {
                 Message msg = (Message) in.readObject();
                 if (msg != null) {
                     switch (msg.getType()) {
+                        case online:
+                            Platform.runLater(() -> {
+                                for (String i : msg.getSendTo()) {
+                                    if (i.equals("ALL") || i.equals(username)) {
+                                    } else {
+                                        System.out.println("添加" + i);
+                                        con.addOnline(new User(i));
+                                    }
+                                }
+                            });
+                            break;
                         case disconnect:
                             String num = msg.getData();
                             Platform.runLater(() -> {
-                                if(con != null) {
+                                if (con != null) {
                                     con.currentOnlineCnt.setText("Online: " + num);
+                                    String toDis = msg.getSendTo().get(0);
+                                    if (!toDis.equals(username) && !toDis.equals("ALL")) {
+                                        System.out.println("当前离线" + username + toDis);
+                                        con.disconnect(new User(toDis));
+                                    }
+
                                 }
                             });
                             break;
@@ -67,7 +86,8 @@ public class Sender implements Runnable {
 
                             break;
                         case connect:
-                            if (msg.getData().equals("true")) {
+                            String data = msg.getData();
+                            if (data.equals("true")) {
                                 Platform.runLater(() -> {
                                     Stage now = Main.getPrimaryStage();
                                     FXMLLoader fxmlLoader = new FXMLLoader(
@@ -78,8 +98,18 @@ public class Sender implements Runnable {
                                         throw new RuntimeException(e);
                                     }
                                     con = fxmlLoader.getController();
-                                    con.username = username;
                                     now.show();
+                                    con.getOnline(username);
+                                });
+                            } else if (data.equals("same")) {
+                                Platform.runLater(() -> {
+                                    Alert alert = new Alert(Alert.AlertType.INFORMATION);
+                                    alert.setTitle("登录失败");
+                                    alert.setContentText("该用户已经在线，\n请确认后再试");
+                                    DialogPane dialogPane = alert.getDialogPane();
+                                    dialogPane.setHeaderText("");
+                                    dialogPane.setGraphic(null);
+                                    alert.showAndWait();
                                 });
                             } else {
                                 Platform.runLater(() -> {
@@ -164,7 +194,8 @@ public class Sender implements Runnable {
     public static void close() throws IOException {
         if (con != null && !socket.isClosed()) {
             System.out.println("给server发下号信息");
-            send(new Message(0L, con.username, "Server", "c", MessageType.disconnect));
+            send(
+                new Message(0L, con.thisuser.getUsername(), "Server", "c", MessageType.disconnect));
         }
         if (in != null) {
             in.close();

@@ -1,16 +1,14 @@
 package cn.edu.sustech.cs209.chatting.client;
 
+import cn.edu.sustech.cs209.chatting.client.util.Group;
 import cn.edu.sustech.cs209.chatting.client.util.Sender;
-import java.util.Objects;
+import java.util.ArrayList;
 import javafx.application.Application;
-import javafx.application.Platform;
 import javafx.fxml.FXMLLoader;
-import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.stage.Stage;
 
 import java.io.IOException;
-import javafx.stage.StageStyle;
 
 public class Main extends Application {
     private static Stage stage;
@@ -23,7 +21,7 @@ public class Main extends Application {
         Main.stage = stage;
         FXMLLoader fxmlLoader = new FXMLLoader(getClass().getResource("view/login.fxml"));
         stage.setScene(new Scene(fxmlLoader.load()));
-        stage.setTitle("Chatting Client");
+        stage.setTitle("Chat!");
         stage.setOnCloseRequest(e->{
             try {
                 Sender.close();

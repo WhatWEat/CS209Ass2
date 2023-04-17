@@ -57,6 +57,15 @@ public class Sender implements Runnable {
                 Message msg = (Message) in.readObject();
                 if (msg != null) {
                     switch (msg.getType()) {
+                        case createGroup:
+                            Platform.runLater(() -> {
+                                try {
+                                    con.createChat(msg.getSendTo());
+                                } catch (IOException e) {
+                                    throw new RuntimeException(e);
+                                }
+                            });
+                            break;
                         case online:
                             Platform.runLater(() -> {
                                 for (String i : msg.getSendTo()) {
@@ -174,8 +183,7 @@ public class Sender implements Runnable {
         }
     }
 
-
-    static void send(Message msg) throws IOException {
+    public static void send(Message msg) throws IOException {
         out.writeObject(msg);
         out.flush();
     }
@@ -205,6 +213,9 @@ public class Sender implements Runnable {
         }
         if (socket != null) {
             socket.close();
+        }
+        for(Stage i:UserlistController.stages.values()){
+            Platform.runLater(i::close);
         }
         System.out.println("close the client");
     }

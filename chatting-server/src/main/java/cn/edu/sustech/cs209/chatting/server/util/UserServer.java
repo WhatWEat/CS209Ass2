@@ -45,12 +45,7 @@ public class UserServer implements Runnable {
                             close();
                             break;
                         case createGroup:
-                            switch (msg.getData()){
-                                case "private":
-                                    break;
-                                case "group":
-                                    break;
-                            }
+                            sendGroup(msg);
                             break;
                     }
                 }
@@ -130,13 +125,23 @@ public class UserServer implements Runnable {
                 value.writeObject(msg);
                 value.flush();
             } catch (IOException e) {
-                System.err.println("该用户已经下号了");
+                System.err.println(value+"该用户已经下号了");
                 throw new RuntimeException(e);
             }
         });
     }
     void sendGroup(Message msg){
-
+        ArrayList<String> sendTo = msg.getSendTo();
+        for(String i:sendTo){
+            try {
+                System.err.println("发送了群组消息"+msg.getData());
+                outList.get(i).writeObject(msg);
+                outList.get(i).flush();
+            } catch (IOException e) {
+                System.out.println(i+"该用户已经下号了");
+                throw new RuntimeException(e);
+            }
+        }
     }
     void close() throws IOException {
         outList.remove(username);

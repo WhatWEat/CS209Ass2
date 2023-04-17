@@ -7,22 +7,16 @@
 <?import javafx.scene.text.*?>
 
 <VBox fx:id="vbox" prefHeight="600.0" prefWidth="900.0" xmlns="http://javafx.com/javafx/17.0.2-ea" xmlns:fx="http://javafx.com/fxml/1" fx:controller="cn.edu.sustech.cs209.chatting.client.view.Controller">
-    <MenuBar prefHeight="6.0" prefWidth="900.0" VBox.vgrow="NEVER">
-        <Menu mnemonicParsing="false" text="Chat">
-            <MenuItem mnemonicParsing="false" onAction="#createPrivateChat" text="New Private Chat" />
-            <MenuItem mnemonicParsing="false" onAction="#createGroupChat" text="New Group Chat" />
-        </Menu>
-    </MenuBar>
     <SplitPane dividerPositions="0.25" focusTraversable="true" VBox.vgrow="ALWAYS">
-      <ScrollPane prefHeight="200.0" prefWidth="200.0">
+      <ScrollPane fitToHeight="true" fitToWidth="true">
          <content>
-              <ListView fx:id="chatList" prefHeight="552.0" prefWidth="220.0" />
+              <ListView fx:id="chatList" maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" />
          </content>
       </ScrollPane>
         <SplitPane dividerPositions="0.7, 0.5" orientation="VERTICAL">
-         <ScrollPane prefHeight="200.0" prefWidth="200.0">
+         <ScrollPane fitToHeight="true" fitToWidth="true" prefHeight="200.0" prefWidth="200.0">
             <content>
-                  <ListView fx:id="chatContentList" prefHeight="370.0" prefWidth="657.0" />
+                  <ListView fx:id="chatContentList" prefHeight="394.0" prefWidth="657.0" />
             </content>
          </ScrollPane>
          <HBox prefHeight="398.0" prefWidth="670.0">
@@ -31,7 +25,7 @@
             </children>
          </HBox>
             <HBox prefHeight="100.0" prefWidth="200.0">
-                <TextArea fx:id="inputArea" onKeyPressed="#enterSendMessage" prefHeight="112.0" prefWidth="602.0" HBox.hgrow="ALWAYS" />
+                <TextArea fx:id="inputCon" onKeyPressed="#enterSendMessage" prefHeight="112.0" prefWidth="602.0" HBox.hgrow="ALWAYS" />
                 <Button maxHeight="1.7976931348623157E308" mnemonicParsing="false" onAction="#doSendMessage" prefHeight="36.0" prefWidth="72.0" text="Send" />
             </HBox>
         </SplitPane>
@@ -40,15 +34,13 @@
         <padding>
             <Insets bottom="3.0" left="3.0" right="3.0" top="3.0" />
         </padding>
-        <Label fx:id="currentUsername" maxHeight="1.7976931348623157E308" text="Current User: USERNAME" HBox.hgrow="ALWAYS">
-            <font>
-                <Font size="11.0" fx:id="x3" />
-            </font>
-            <textFill>
-                <Color red="0.625" green="0.625" blue="0.625" fx:id="x4" />
-            </textFill>
-        </Label>
         <Pane HBox.hgrow="ALWAYS" />
-        <Label fx:id="currentOnlineCnt" font="$x3" text="Online: 1" textFill="$x4" HBox.hgrow="NEVER" />
+        <Label fx:id="currentOnlineCnt" text="Online: 1" HBox.hgrow="NEVER">
+         <font>
+                <Font size="11.0" fx:id="x3" />
+         </font>
+         <textFill>
+                <Color red="0.625" green="0.625" blue="0.625" fx:id="x4" />
+         </textFill></Label>
     </HBox>
 </VBox>

@@ -1,6 +1,7 @@
 package cn.edu.sustech.cs209.chatting.client.view;
 
 import cn.edu.sustech.cs209.chatting.client.Main;
+import cn.edu.sustech.cs209.chatting.client.util.Group;
 import cn.edu.sustech.cs209.chatting.client.util.User;
 import cn.edu.sustech.cs209.chatting.common.*;
 import java.net.URL;
@@ -14,7 +15,6 @@ import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
-import javafx.scene.Cursor;
 import javafx.scene.Scene;
 import javafx.scene.control.*;
 import javafx.scene.control.Alert.AlertType;
@@ -24,7 +24,6 @@ import javafx.scene.input.KeyCode;
 import javafx.scene.input.KeyEvent;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.HBox;
-import javafx.scene.layout.VBox;
 import javafx.stage.Stage;
 import javafx.util.Callback;
 
@@ -35,8 +34,11 @@ public class Controller implements Initializable {
     @FXML
     ListView<User> chatList;
     @FXML
+    public TextArea inputCon;
+    @FXML
     public Label currentOnlineCnt;
     public static User thisuser;
+    private Group group;
     private ObservableList<Message> messageList;
     private ObservableList<User> userList;
     @Override
@@ -45,48 +47,30 @@ public class Controller implements Initializable {
         chatContentList.setCellFactory(new MessageCellFactory());
         chatContentList.setItems(messageList);
         userList = FXCollections.observableArrayList();
+    }
+    public void initUserList(ObservableList<User> userList){
+        Long count = 0L;
+        for(User i:userList){
+            if(group.getGroupMember().contains(i.getUsername())){
+                if(i.isOnline()) count++;
+                this.userList.add(i);
+            }
+        }
+        currentOnlineCnt.setText(String.format("Online: %d",count));
         chatList.setCellFactory(new UserCellFactory());
-        chatList.setItems(userList);
+        chatList.setItems(this.userList);
     }
-    @FXML
-    public void createPrivateChat() {
-        AtomicReference<String> user = new AtomicReference<>();
-
-        Stage stage = new Stage();
-        ComboBox<String> userSel = new ComboBox<>();
-
-        // FIXME: get the user list from server, the current user's name should be filtered out
-        userSel.getItems().addAll("Item 1", "Item 2", "Item 3");
-
-        Button okBtn = new Button("OK");
-        okBtn.setOnAction(e -> {
-            user.set(userSel.getSelectionModel().getSelectedItem());
-            stage.close();
-        });
-
-        HBox box = new HBox(10);
-        box.setAlignment(Pos.CENTER);
-        box.setPadding(new Insets(20, 20, 20, 20));
-        box.getChildren().addAll(userSel, okBtn);
-        stage.setScene(new Scene(box));
-        stage.showAndWait();
-
-        // TODO: if the current user already chatted with the selected user, just open the chat with that user
-        // TODO: otherwise, create a new chat item in the left panel, the title should be the selected user's name
+    public void refresh(){
+        chatList.setCellFactory(new UserCellFactory());
+        chatList.setItems(this.userList);
+        Long count = 0L;
+        for(User i:userList){
+            if(i.isOnline()) count++;
+        }
+        currentOnlineCnt.setText(String.format("Online: %d",count));
     }
-
-    /**
-     * A new dialog should contain a multi-select list, showing all user's name.
-     * You can select several users that will be joined in the group chat, including yourself.
-     * <p>
-     * The naming rule for group chats is similar to WeChat:
-     * If there are > 3 users: display the first three usernames, sorted in lexicographic order, then use ellipsis with the number of users, for example:
-     * UserA, UserB, UserC... (10)
-     * If there are <= 3 users: do not display the ellipsis, for example:
-     * UserA, UserB (2)
-     */
-    @FXML
-    public void createGroupChat() {
+    public void setGroup(Group group) {
+        this.group = group;
     }
 
     /**
@@ -97,6 +81,7 @@ public class Controller implements Initializable {
      */
     @FXML
     public void doSendMessage() {
+
         messageList.add(new Message(0L,"Server","EEE","hello",MessageType.connect));
         // TODO
     }
@@ -104,6 +89,7 @@ public class Controller implements Initializable {
     public void enterSendMessage(KeyEvent event){
         if (event.getCode() == KeyCode.ENTER) {
             doSendMessage();
+            inputCon.setText("");
         }
     }
     /**
@@ -180,26 +166,16 @@ public class Controller implements Initializable {
                     //name
                     nameLabel.setPrefSize(50, 20);
                     nameLabel.setWrapText(true);
-                    nameLabel.setStyle("-fx-border-color: black; -fx-border-width: 1px;");
-                    //double click
-                    EventHandler<MouseEvent> doubleClickHandler = event -> {
-                        if (event.getClickCount() == 2) {
-                            Alert alert = new Alert(AlertType.INFORMATION);
-                            alert.setTitle("Double Click");
-                            alert.setHeaderText(null);
-                            alert.setContentText("You double-clicked the label!");
-                            alert.showAndWait();
-                        }
-                    };
+//                    nameLabel.setStyle("-fx-border-color: black; -fx-border-width: 1px;");
 
                     if (thisuser.getUsername().equals(user.getUsername())) {
                         wrapper.setAlignment(Pos.TOP_LEFT);
-                        infoLabel.setText("Your username");
-                        infoLabel.setPadding(new Insets(0, 20, 0, 0));
+                        infoLabel.setText("Your username:");
+                        //infoLabel.setPadding(new Insets(0, 20, 0, 0));
                     } else {
                         wrapper.setAlignment(Pos.TOP_CENTER);
                         infoLabel.setText("Offline");
-                        infoLabel.setPadding(new Insets(0, 30, 0, 0));
+                        infoLabel.setPadding(new Insets(0, 20, 0, 0));
                         if(user.isOnline()){
                             infoLabel.setText("Online");
                         }

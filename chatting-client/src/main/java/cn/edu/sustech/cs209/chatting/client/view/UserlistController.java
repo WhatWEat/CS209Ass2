@@ -1,13 +1,16 @@
 package cn.edu.sustech.cs209.chatting.client.view;
 
 import cn.edu.sustech.cs209.chatting.client.util.Group;
+import cn.edu.sustech.cs209.chatting.client.util.Sender;
 import cn.edu.sustech.cs209.chatting.client.util.User;
 import cn.edu.sustech.cs209.chatting.common.Message;
+import cn.edu.sustech.cs209.chatting.common.MessageType;
 import java.io.IOException;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Comparator;
+import java.util.HashMap;
 import java.util.Objects;
 import java.util.ResourceBundle;
 import java.util.concurrent.atomic.AtomicReference;
@@ -49,41 +52,16 @@ public class UserlistController implements Initializable {
     private ListView<User> chatList;
     public User thisuser;
     public static ObservableList<User> userList;
-    private ArrayList<User> nowGroup = new ArrayList<>();
-    private ArrayList<Group> groups = new ArrayList<>();
+    public static HashMap<ArrayList<String>,Stage> stages = new HashMap<>();
+    private final ArrayList<User> nowGroup = new ArrayList<>();
+    private final HashMap<ArrayList<String>,Controller> cons = new HashMap<>();
+
 
     @Override
     public void initialize(URL url, ResourceBundle resourceBundle) {
         userList = FXCollections.observableArrayList();
         chatList.setItems(userList);
         chatList.setCellFactory(new UserCellFactory());
-    }
-    //@FXML
-    public void createPrivateChat() {
-        userList.add(thisuser);
-        AtomicReference<String> user = new AtomicReference<>();
-
-        Stage stage = new Stage();
-        ComboBox<String> userSel = new ComboBox<>();
-
-        // FIXME: get the user list from server, the current user's name should be filtered out
-        userSel.getItems().addAll("Item 1", "Item 2", "Item 3");
-
-        Button okBtn = new Button("OK");
-        okBtn.setOnAction(e -> {
-            user.set(userSel.getSelectionModel().getSelectedItem());
-            stage.close();
-        });
-
-        HBox box = new HBox(10);
-        box.setAlignment(Pos.CENTER);
-        box.setPadding(new Insets(20, 20, 20, 20));
-        box.getChildren().addAll(userSel, okBtn);
-        stage.setScene(new Scene(box));
-        stage.showAndWait();
-
-        // TODO: if the current user already chatted with the selected user, just open the chat with that user
-        // TODO: otherwise, create a new chat item in the left panel, the title should be the selected user's name
     }
     public void getOnline(String username){
         thisuser = new User(username);
@@ -105,11 +83,15 @@ public class UserlistController implements Initializable {
             System.out.println("不存在"+user.getUsername());
             users.add(user);
         }
+        //refresh the userList in every chat window
+        for(Controller i:cons.values()){
+            i.refresh();
+        }
         chatList.setItems(users);
         chatList.setCellFactory(new UserCellFactory());
         userList.setAll(users);
     }
-    public void disconnect(User user){
+    public synchronized void disconnect(User user){
         ObservableList<User> users = FXCollections.observableArrayList();
         for(User i:userList){
             users.add(i);
@@ -118,37 +100,69 @@ public class UserlistController implements Initializable {
                 i.setOnline(false);
             }
         }
+        //refresh the userList in every chat window
+        for(Controller i:cons.values()){
+            i.refresh();
+        }
         chatList.setItems(users);
         chatList.setCellFactory(new UserCellFactory());
         userList.setAll(users);
     }
-    /**
-     * A new dialog should contain a multi-select list, showing all user's name.
-     * You can select several users that will be joined in the group chat, including yourself.
-     * <p>
-     * The naming rule for group chats is similar to WeChat:
-     * If there are > 3 users: display the first three usernames, sorted in lexicographic order, then use ellipsis with the number of users, for example:
-     * UserA, UserB, UserC... (10)
-     * If there are <= 3 users: do not display the ellipsis, for example:
-     * UserA, UserB (2)
-     */
-    @FXML
-    public void createGroupChat() throws IOException {
+    public void createChat(ArrayList<String> usernames) throws IOException {
+        usernames.sort(Comparator.naturalOrder());
+        if(cons.containsKey(usernames)){
+            // if the chat window already exists, it will show the window
+            System.out.println("该聊天窗口已存在");
+            stages.get(usernames).show();
+            return;
+        }
+        // else it will create a new chat window
         FXMLLoader loader = new FXMLLoader(getClass().getResource("../view/main.fxml"));
         Parent root = loader.load();
         Stage stage = new Stage();
         stage.setScene(new Scene(root));
         stage.initStyle(StageStyle.DECORATED);
+        stage.setOnCloseRequest(event -> {
+            event.consume();
+            stage.hide();
+        });
+        Controller nowCon = loader.getController();
         //create a new group instance
-        ArrayList<String> usernames = new ArrayList<>();
-        nowGroup.forEach(user -> usernames.add(user.getUsername()));
-        usernames.sort(Comparator.naturalOrder());
-        Group group = new Group(usernames,loader.getController());
+        Group group = new Group(usernames);
         Controller.thisuser = thisuser;
-        nowGroup.forEach(user -> user.getGroups().add(group));
+        cons.put(group.getGroupMember(),nowCon);
+        nowCon.setGroup(group);
+        System.out.println(nowGroup);
+        nowCon.initUserList(userList);
+        //nowGroup.forEach(user -> user.getGroups().add(group));
+        stages.put(usernames,stage);
+        Sender.send(new Message(0L, thisuser.getUsername(), usernames,"start",MessageType.createGroup));
         stage.show();
     }
-
+    @FXML
+    public void createGroupChat() throws IOException {
+        // if it doesn't select any user, return
+        if(nowGroup.isEmpty()){
+            Alert alert = new Alert(AlertType.INFORMATION);
+            alert.setTitle("提示");
+            alert.setHeaderText(null);
+            alert.setContentText("请先选择用户");
+            alert.showAndWait();
+            return;
+        }
+        //get the arraylist of usernames
+        ArrayList<String> usernames = new ArrayList<>();
+        nowGroup.forEach(user -> usernames.add(user.getUsername()));
+        usernames.add(thisuser.getUsername());
+        createChat(usernames);
+    }
+    @FXML
+    public void createPrivateChat(User username) throws IOException {
+        ArrayList<String> usernames = new ArrayList<>();
+        usernames.add(username.getUsername());
+        usernames.add(thisuser.getUsername());
+        createChat(usernames);
+    }
     /*
      * Sends the message to the <b>currently selected</b> chat.
      * <p>
@@ -193,26 +207,26 @@ public class UserlistController implements Initializable {
                     //name
                     nameLabel.setPrefSize(50, 20);
                     nameLabel.setWrapText(true);
-                    nameLabel.setStyle("-fx-border-color: black; -fx-border-width: 1px;");
+//                    nameLabel.setStyle("-fx-border-color: black; -fx-border-width: 1px;");
                     //double click
                     EventHandler<MouseEvent> doubleClickHandler = event -> {
                         if (event.getClickCount() == 2) {
-                            Alert alert = new Alert(AlertType.INFORMATION);
-                            alert.setTitle("Double Click");
-                            alert.setHeaderText(null);
-                            alert.setContentText("You double-clicked the label!");
-                            alert.showAndWait();
+                            try {
+                                createPrivateChat(user);
+                            } catch (IOException e) {
+                                e.printStackTrace();
+                            }
                         }
                     };
 
                     if (thisuser.getUsername().equals(user.getUsername())) {
                         wrapper.setAlignment(Pos.TOP_LEFT);
                         infoLabel.setText("Your username");
-                        infoLabel.setPadding(new Insets(0, 20, 0, 0));
+                        infoLabel.setPadding(new Insets(0, 10, 0, 0));
                     } else {
                         wrapper.setAlignment(Pos.TOP_CENTER);
                         infoLabel.setText("Offline");
-                        infoLabel.setPadding(new Insets(0, 30, 0, 0));
+                        infoLabel.setPadding(new Insets(0, 10, 0, 0));
                         if(user.isOnline()){
                             infoLabel.setText("Online");
                             //deal with group choice

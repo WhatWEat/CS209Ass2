@@ -1,6 +1,5 @@
 package cn.edu.sustech.cs209.chatting.client;
 
-import cn.edu.sustech.cs209.chatting.client.util.Group;
 import cn.edu.sustech.cs209.chatting.client.util.Sender;
 import java.util.ArrayList;
 import javafx.application.Application;

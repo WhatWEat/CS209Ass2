@@ -40,6 +40,7 @@ public class UserServer implements Runnable {
                 if(msg != null){
                     switch (msg.getType()){
                         case chat:
+                            sendGroup(msg);
                             break;
                         case disconnect:
                             close();

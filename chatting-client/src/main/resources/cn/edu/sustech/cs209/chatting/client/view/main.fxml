@@ -25,7 +25,7 @@
             </children>
          </HBox>
             <HBox prefHeight="100.0" prefWidth="200.0">
-                <TextArea fx:id="inputCon" onKeyPressed="#enterSendMessage" prefHeight="112.0" prefWidth="602.0" HBox.hgrow="ALWAYS" />
+                <TextArea fx:id="inputCon" prefHeight="112.0" prefWidth="602.0" HBox.hgrow="ALWAYS" />
                 <Button maxHeight="1.7976931348623157E308" mnemonicParsing="false" onAction="#doSendMessage" prefHeight="36.0" prefWidth="72.0" text="Send" />
             </HBox>
         </SplitPane>

@@ -57,6 +57,11 @@ public class Sender implements Runnable {
                 Message msg = (Message) in.readObject();
                 if (msg != null) {
                     switch (msg.getType()) {
+                        case chat:
+                            Platform.runLater(() -> {
+                                con.addMessage(msg);
+                            });
+                            break;
                         case createGroup:
                             Platform.runLater(() -> {
                                 try {
@@ -90,9 +95,6 @@ public class Sender implements Runnable {
 
                                 }
                             });
-                            break;
-                        case chat:
-
                             break;
                         case connect:
                             String data = msg.getData();

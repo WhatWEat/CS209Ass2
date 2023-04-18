@@ -1,7 +1,6 @@
 package cn.edu.sustech.cs209.chatting.client.view;
 
 import cn.edu.sustech.cs209.chatting.client.Main;
-import cn.edu.sustech.cs209.chatting.client.util.ResizeHelper;
 import cn.edu.sustech.cs209.chatting.client.util.Sender;
 import java.io.IOException;
 import java.net.URL;
@@ -80,25 +79,6 @@ public class LoginController implements Initializable {
         new Thread(sender).start();
         //showAlert("same");
 
-    }
-    public void showScene() throws IOException {
-        Platform.runLater(() -> {
-            Stage stage = (Stage) passwordTextfield.getScene().getWindow();
-            stage.setResizable(true);
-            stage.setWidth(1040);
-            stage.setHeight(620);
-
-            stage.setOnCloseRequest((WindowEvent e) -> {
-                Platform.exit();
-                System.exit(0);
-            });
-            stage.setScene(this.scene);
-            stage.setMinWidth(800);
-            stage.setMinHeight(300);
-            ResizeHelper.addResizeListener(stage);
-            stage.centerOnScreen();
-
-        });
     }
 
     @Override

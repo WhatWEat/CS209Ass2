@@ -2,8 +2,10 @@ package cn.edu.sustech.cs209.chatting.client.view;
 
 import cn.edu.sustech.cs209.chatting.client.Main;
 import cn.edu.sustech.cs209.chatting.client.util.Group;
+import cn.edu.sustech.cs209.chatting.client.util.Sender;
 import cn.edu.sustech.cs209.chatting.client.util.User;
 import cn.edu.sustech.cs209.chatting.common.*;
+import java.io.IOException;
 import java.net.URL;
 import java.util.Objects;
 import java.util.ResourceBundle;
@@ -60,6 +62,11 @@ public class Controller implements Initializable {
         chatList.setCellFactory(new UserCellFactory());
         chatList.setItems(this.userList);
     }
+    public void addMessage(Message msg){
+        group.addMessage(msg);
+        messageList.add(msg);
+        chatContentList.refresh();
+    }
     public void refresh(){
         chatList.setCellFactory(new UserCellFactory());
         chatList.setItems(this.userList);
@@ -80,17 +87,12 @@ public class Controller implements Initializable {
      * After sending the message, you should clear the text input field.
      */
     @FXML
-    public void doSendMessage() {
-
-        messageList.add(new Message(0L,"Server","EEE","hello",MessageType.connect));
-        // TODO
-    }
-    @FXML
-    public void enterSendMessage(KeyEvent event){
-        if (event.getCode() == KeyCode.ENTER) {
-            doSendMessage();
-            inputCon.setText("");
-        }
+    public void doSendMessage() throws IOException {
+        if(inputCon.getText().equals("")) return;
+        Message msg = new Message(System.currentTimeMillis(), thisuser.getUsername(), group.getGroupMember(), inputCon.getText(), MessageType.chat);
+        System.out.println("当前时间:"+msg.getTimestamp());
+        Sender.send(msg);
+        inputCon.clear();
     }
     /**
      * You may change the cell factory if you changed the design of {@code Message} model.
@@ -105,6 +107,8 @@ public class Controller implements Initializable {
                 public void updateItem(Message msg, boolean empty) {
                     super.updateItem(msg, empty);
                     if (empty || Objects.isNull(msg)) {
+                        setText(null);
+                        setGraphic(null);
                         return;
                     }
 

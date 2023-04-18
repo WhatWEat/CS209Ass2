@@ -1,6 +1,7 @@
 package cn.edu.sustech.cs209.chatting.client.view;
 
 import cn.edu.sustech.cs209.chatting.client.util.Group;
+import cn.edu.sustech.cs209.chatting.client.util.Notification;
 import cn.edu.sustech.cs209.chatting.client.util.Sender;
 import cn.edu.sustech.cs209.chatting.client.util.User;
 import cn.edu.sustech.cs209.chatting.common.Message;
@@ -14,6 +15,7 @@ import java.util.HashMap;
 import java.util.Objects;
 import java.util.ResourceBundle;
 import java.util.concurrent.atomic.AtomicReference;
+import javafx.application.Platform;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.event.EventHandler;
@@ -63,10 +65,21 @@ public class UserlistController implements Initializable {
         chatList.setItems(userList);
         chatList.setCellFactory(new UserCellFactory());
     }
-    public void getOnline(String username){
-        thisuser = new User(username);
-        addOnline(thisuser);
-        currentUsername.setText(username);
+    public void addMessage(Message msg){
+        Controller nowCons = cons.get(msg.getSendTo());
+        Stage stage = stages.get(msg.getSendTo());
+        if(stage != null){
+            if(!stage.isShowing()){
+                stage.show();
+                Platform.runLater(()->{
+                    Notification notification = new Notification(MessageType.chat);
+                    notification.setContent("用户"+msg.getSentBy()+"给你发来了消息","请注意查收");
+                });
+            }
+        }
+        if(nowCons!=null){
+            nowCons.addMessage(msg);
+        }
     }
     public synchronized void addOnline(User user){
         ObservableList<User> users = FXCollections.observableArrayList();
@@ -83,6 +96,10 @@ public class UserlistController implements Initializable {
             System.out.println("不存在"+user.getUsername());
             users.add(user);
         }
+        Platform.runLater(()->{
+            Notification notification = new Notification(MessageType.online);
+            notification.setContent("用户"+user.getUsername()+"上线了","点击用户名即可聊天");
+        });
         //refresh the userList in every chat window
         for(Controller i:cons.values()){
             i.refresh();
@@ -100,6 +117,10 @@ public class UserlistController implements Initializable {
                 i.setOnline(false);
             }
         }
+        Platform.runLater(()->{
+            Notification notification = new Notification(MessageType.disconnect);
+            notification.setContent("用户"+user.getUsername()+"下线了","");
+        });
         //refresh the userList in every chat window
         for(Controller i:cons.values()){
             i.refresh();
@@ -162,6 +183,11 @@ public class UserlistController implements Initializable {
         usernames.add(username.getUsername());
         usernames.add(thisuser.getUsername());
         createChat(usernames);
+    }
+    public void getOnline(String username){
+        thisuser = new User(username);
+        addOnline(thisuser);
+        currentUsername.setText(username);
     }
     /*
      * Sends the message to the <b>currently selected</b> chat.

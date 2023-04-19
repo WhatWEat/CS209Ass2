@@ -8,8 +8,11 @@ import cn.edu.sustech.cs209.chatting.common.Message;
 import cn.edu.sustech.cs209.chatting.common.MessageType;
 import java.io.IOException;
 import java.net.URL;
+import java.nio.file.Files;
+import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Base64;
 import java.util.Comparator;
 import java.util.HashMap;
 import java.util.Objects;
@@ -52,7 +55,7 @@ public class UserlistController implements Initializable {
     private Label currentUsername;
     @FXML
     private ListView<User> chatList;
-    public User thisuser;
+    public static User thisuser;
     public static ObservableList<User> userList;
     public static HashMap<ArrayList<String>,Stage> stages = new HashMap<>();
     private final ArrayList<User> nowGroup = new ArrayList<>();
@@ -61,9 +64,8 @@ public class UserlistController implements Initializable {
 
     @Override
     public void initialize(URL url, ResourceBundle resourceBundle) {
-        userList = FXCollections.observableArrayList();
-        chatList.setItems(userList);
         chatList.setCellFactory(new UserCellFactory());
+        chatList.setItems(userList);
     }
     public void addMessage(Message msg){
         Controller nowCons = cons.get(msg.getSendTo());
@@ -185,8 +187,7 @@ public class UserlistController implements Initializable {
         createChat(usernames);
     }
     public void getOnline(String username){
-        thisuser = new User(username);
-        addOnline(thisuser);
+        if(userList.isEmpty()) addOnline(thisuser);
         currentUsername.setText(username);
     }
     /*
@@ -208,6 +209,8 @@ public class UserlistController implements Initializable {
                 public void updateItem(User user, boolean empty) {
                     super.updateItem(user, empty);
                     if (empty || Objects.isNull(user)) {
+                        setText(null);
+                        setGraphic(null);
                         return;
                     }
 

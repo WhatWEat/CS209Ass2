@@ -17,7 +17,11 @@ import javafx.scene.control.Alert;
 import javafx.scene.control.DialogPane;
 import javafx.stage.Stage;
 import javafx.stage.StageStyle;
-
+/* TODO Exception
+    server crash: in login stage, in userlist stage
+    client down: other client can receive the message
+    History:
+* */
 public class Sender implements Runnable {
 
     public static final int port = 25565;
@@ -39,7 +43,6 @@ public class Sender implements Runnable {
         this.password = password;
         this.register = register;
     }
-
     @Override
     public void run() {
         try {
@@ -57,6 +60,7 @@ public class Sender implements Runnable {
                 Message msg = (Message) in.readObject();
                 if (msg != null) {
                     switch (msg.getType()) {
+                        case file:
                         case chat:
                             Platform.runLater(() -> {
                                 con.addMessage(msg);
@@ -73,13 +77,12 @@ public class Sender implements Runnable {
                             break;
                         case online:
                             Platform.runLater(() -> {
-                                for (String i : msg.getSendTo()) {
-                                    if (i.equals("ALL") || i.equals(username)) {
-                                    } else {
-                                        System.out.println("添加" + i);
-                                        con.addOnline(new User(i));
-                                    }
+                                ArrayList<String> sendTo = msg.getSendTo();
+                                for (String i : sendTo) {
+                                    System.out.println("添加上号:" + i);
+                                    con.addOnline(new User(i));
                                 }
+                                System.out.println("online");
                             });
                             break;
                         case disconnect:
@@ -101,6 +104,8 @@ public class Sender implements Runnable {
                             if (data.equals("true")) {
                                 Platform.runLater(() -> {
                                     Stage now = Main.getPrimaryStage();
+                                    UserlistController.thisuser = new User(username);
+                                    Main.readUserList();
                                     FXMLLoader fxmlLoader = new FXMLLoader(
                                         getClass().getResource("../view/userlist.fxml"));
                                     try {
@@ -111,6 +116,7 @@ public class Sender implements Runnable {
                                     con = fxmlLoader.getController();
                                     now.show();
                                     con.getOnline(username);
+                                    System.out.println("connection");
                                 });
                             } else if (data.equals("same")) {
                                 Platform.runLater(() -> {

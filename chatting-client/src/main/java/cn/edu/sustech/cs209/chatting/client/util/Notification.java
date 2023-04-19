@@ -9,7 +9,6 @@ import javafx.animation.Interpolator;
 import javafx.animation.KeyFrame;
 import javafx.animation.KeyValue;
 import javafx.animation.Timeline;
-import javafx.beans.property.SimpleDoubleProperty;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.geometry.Rectangle2D;
@@ -23,7 +22,6 @@ import javafx.stage.Screen;
 import javafx.stage.Stage;
 import javafx.stage.StageStyle;
 import javafx.util.Duration;
-import javax.swing.text.Element;
 
 public class Notification {
     @FXML
@@ -65,7 +63,7 @@ public class Notification {
         timeline = new Timeline();
         timeline.setCycleCount(1);
         timeline.setAutoReverse(false);
-        Duration duration = Duration.seconds(1.5);
+        Duration duration = Duration.seconds(2);
         int frames = 60;
         double interval = duration.toMillis() / frames;
         double opacityDelta = 1.0 / frames;
@@ -135,52 +133,15 @@ public class Notification {
             setHeight(height);
         }
 
-        public Location getOffScreenBounds() {
-            Location loc = getBottomRight();
-
-            return new Location(loc.getX() + this.getWidth(), loc.getY());
-        }
-
         public void setLocation(Location loc) {
             setX(loc.getX());
             setY(loc.getY());
         }
 
-        private SimpleDoubleProperty xLocationProperty = new SimpleDoubleProperty() {
-            @Override
-            public void set(double newValue) {
-                setX(newValue);
-            }
-
-            @Override
-            public double get() {
-                return getX();
-            }
-        };
-
-        public SimpleDoubleProperty xLocationProperty() {
-            return xLocationProperty;
-        }
-
-        private SimpleDoubleProperty yLocationProperty = new SimpleDoubleProperty() {
-            @Override
-            public void set(double newValue) {
-                setY(newValue);
-            }
-
-            @Override
-            public double get() {
-                return getY();
-            }
-        };
-
-        public SimpleDoubleProperty yLocationProperty() {
-            return yLocationProperty;
-        }
     }
     private static class Location {
 
-        private double x, y;
+        private final double x,y;
 
         public Location(double xLoc, double yLoc) {
             this.x = xLoc;

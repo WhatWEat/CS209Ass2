@@ -21,7 +21,7 @@
          </ScrollPane>
          <HBox prefHeight="398.0" prefWidth="670.0">
             <children>
-             <Button maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" minWidth="43.0" mnemonicParsing="false" text="File" />
+             <Button maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" minWidth="43.0" mnemonicParsing="false" onAction="#sendFile" text="File" />
             </children>
          </HBox>
             <HBox prefHeight="100.0" prefWidth="200.0">

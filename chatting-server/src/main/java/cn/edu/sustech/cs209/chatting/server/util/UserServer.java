@@ -40,13 +40,12 @@ public class UserServer implements Runnable {
                 if(msg != null){
                     switch (msg.getType()){
                         case chat:
+                        case file:
+                        case createGroup:
                             sendGroup(msg);
                             break;
                         case disconnect:
                             close();
-                            break;
-                        case createGroup:
-                            sendGroup(msg);
                             break;
                     }
                 }
@@ -75,7 +74,8 @@ public class UserServer implements Runnable {
                     send(user, "true", MessageType.connect);
                     username = msg.getSentBy();
                     outList.put(username,out);
-                    sendALL(new Message(0L,"Server","ALL", user,MessageType.online));
+                    ArrayList<String> userList = new ArrayList<>(outList.keySet());
+                    sendALL(new Message(0L,"Server",userList, user,MessageType.online));
                     sendALL(new Message(0L,"Server","ALL", String.valueOf(outList.size()),MessageType.disconnect));
                     System.out.println("right answer 在线人数"+outList.size()+" 上号:" + user);
                 } else {
@@ -115,7 +115,6 @@ public class UserServer implements Runnable {
     void sendALL(Message msg){
         if(msg.getType() == MessageType.online){
             for (String s1 : outList.keySet()) {
-
                 msg.getSendTo().add(s1);
             }
             System.out.println(msg.getSentBy().toString()+"的上号信息");
@@ -135,7 +134,14 @@ public class UserServer implements Runnable {
         ArrayList<String> sendTo = msg.getSendTo();
         for(String i:sendTo){
             try {
-                System.err.println("发送了群组消息"+msg.getData());
+                switch (msg.getType()){
+                    case file:
+                        System.out.println(msg.getSentBy()+"发送了文件"+msg.getData().substring(0,10));
+                        break;
+                    default:
+                        System.out.println(msg.getSentBy()+"发送了群组消息"+msg.getData());
+                        break;
+                }
                 outList.get(i).writeObject(msg);
                 outList.get(i).flush();
             } catch (IOException e) {

@@ -107,7 +107,8 @@ public class UserServer implements Runnable {
       out.writeObject(userList);
       System.out.println("HashMap saved to " + "pw.map");
     } catch (IOException e) {
-      e.printStackTrace();
+      System.out.println("save password failed");
+      //      e.printStackTrace();
     }
   }
 

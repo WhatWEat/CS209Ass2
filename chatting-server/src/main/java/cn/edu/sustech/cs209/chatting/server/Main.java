@@ -26,7 +26,8 @@ public class Main {
         new Thread(sp).start();
       }
     } catch (Exception e) {
-      e.printStackTrace();
+      System.out.println("Server closed");
+      //e.printStackTrace();
     } finally {
       ss.close();
     }
@@ -39,7 +40,7 @@ public class Main {
       userList = (HashMap<String, String>) in.readObject();
       System.out.println("HashMap loaded from " + "pw.map");
     } catch (IOException | ClassNotFoundException e) {
-      e.printStackTrace();
+      //e.printStackTrace();
       userList = new HashMap<>();
       savePassword(new HashMap<>());
       System.out.println("new file has been created");
@@ -52,7 +53,7 @@ public class Main {
       out.writeObject(userList);
       System.out.println("HashMap saved to " + "pw.map");
     } catch (IOException e) {
-      e.printStackTrace();
+      //e.printStackTrace();
     }
   }
 

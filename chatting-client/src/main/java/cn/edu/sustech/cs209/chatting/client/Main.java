@@ -23,32 +23,37 @@ import javafx.stage.Stage;
 import java.io.IOException;
 
 public class Main extends Application {
-    private static Stage stage;
-    public static void main(String[] args) {
-        launch();
-    }
 
-    @Override
-    public void start(Stage stage) throws IOException {
-        Main.stage = stage;
-        FXMLLoader fxmlLoader = new FXMLLoader(getClass().getResource("view/login.fxml"));
-        stage.setScene(new Scene(fxmlLoader.load()));
-        stage.setTitle("Chat!");
-        stage.setOnCloseRequest(e->{
-            try {
-                if(UserlistController.thisuser != null) FileOperator.saveUserList();
-                Sender.close();
-            } catch (IOException ex) {
-                throw new RuntimeException(ex);
-            }
-        });
-        stage.show();
-    }
+  private static Stage stage;
 
-    public static Stage getPrimaryStage() {
-        return stage;
-    }
-    public static void setStage(Stage stage){
-        Main.stage = stage;
-    }
+  public static void main(String[] args) {
+    launch();
+  }
+
+  @Override
+  public void start(Stage stage) throws IOException {
+    Main.stage = stage;
+    FXMLLoader fxmlLoader = new FXMLLoader(getClass().getResource("view/login.fxml"));
+    stage.setScene(new Scene(fxmlLoader.load()));
+    stage.setTitle("Chat!");
+    stage.setOnCloseRequest(e -> {
+      try {
+        if (UserlistController.thisuser != null) {
+          FileOperator.saveUserList();
+        }
+        Sender.close();
+      } catch (IOException ex) {
+        throw new RuntimeException(ex);
+      }
+    });
+    stage.show();
+  }
+
+  public static Stage getPrimaryStage() {
+    return stage;
+  }
+
+  public static void setStage(Stage stage) {
+    Main.stage = stage;
+  }
 }

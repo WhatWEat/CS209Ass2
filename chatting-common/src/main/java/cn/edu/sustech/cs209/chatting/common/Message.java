@@ -14,7 +14,7 @@ public class Message implements Serializable {
     private String data;
     private MessageType type;
 
-    public Message(Long timestamp, String sentBy, String sendTo, String data,MessageType type) {
+    public Message(Long timestamp, String sentBy, String sendTo, String data, MessageType type) {
         this.timestamp = timestamp;
         this.sentBy = sentBy;
         this.sendTo.add(sendTo);
@@ -46,6 +46,7 @@ public class Message implements Serializable {
     public String getData() {
         return data;
     }
+
     public MessageType getType() {
         return type;
     }

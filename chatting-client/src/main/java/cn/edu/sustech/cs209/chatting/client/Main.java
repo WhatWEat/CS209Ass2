@@ -39,7 +39,7 @@ public class Main extends Application {
                 if(UserlistController.thisuser != null) FileOperator.saveUserList();
                 Sender.close();
             } catch (IOException ex) {
-                //throw new RuntimeException(ex);
+                throw new RuntimeException(ex);
             }
         });
         stage.show();

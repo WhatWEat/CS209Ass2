@@ -152,12 +152,14 @@ public class Sender implements Runnable {
             });
             System.out.println("Socket已经关闭");
         } catch (IOException | ClassNotFoundException e) {
-            throw new RuntimeException(e);
+            System.out.println("Sender异常,没有对应类型的消息");
+            //throw new RuntimeException(e);
         } finally {
             try {
                 close();
             } catch (IOException e) {
                 Platform.runLater(()->{
+                    UserlistController.stages.values().forEach(Stage::close);
                     Notification notification = new Notification(MessageType.close);
                     Main.getPrimaryStage().close();
                 });

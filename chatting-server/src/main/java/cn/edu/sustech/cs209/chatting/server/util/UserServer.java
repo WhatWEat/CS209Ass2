@@ -72,7 +72,7 @@ public class UserServer implements Runnable {
         if (outList.containsKey(user)) {
           send(user, "same", MessageType.connect);
           System.out.println("same user");
-        } else if (userList.containsKey(user) & userList.get(user).equals(password)) {
+        } else if (userList.containsKey(user) && userList.get(user).equals(password)) {
           send(user, "true", MessageType.connect);
           username = msg.getSentBy();
           outList.put(username, out);
@@ -131,7 +131,7 @@ public class UserServer implements Runnable {
         value.flush();
       } catch (IOException e) {
         System.err.println(value + "该用户已经下号了");
-        throw new RuntimeException(e);
+        //throw new RuntimeException(e);
       }
     });
   }

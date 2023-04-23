@@ -105,7 +105,7 @@ public class Sender implements Runnable {
                                 Platform.runLater(() -> {
                                     Stage now = Main.getPrimaryStage();
                                     UserlistController.thisuser = new User(username);
-                                    Main.readUserList();
+                                    FileOperator.readUserList();
                                     FXMLLoader fxmlLoader = new FXMLLoader(
                                         getClass().getResource("../view/userlist.fxml"));
                                     try {
@@ -120,58 +120,26 @@ public class Sender implements Runnable {
                                 });
                             } else if (data.equals("same")) {
                                 Platform.runLater(() -> {
-                                    Alert alert = new Alert(Alert.AlertType.INFORMATION);
-                                    alert.setTitle("登录失败");
-                                    alert.setContentText("该用户已经在线，\n请确认后再试");
-                                    DialogPane dialogPane = alert.getDialogPane();
-                                    dialogPane.setHeaderText("");
-                                    dialogPane.setGraphic(null);
-                                    alert.showAndWait();
+                                    createAlert("登录失败","该用户已经在线，\n请确认后再试");
                                 });
                             } else {
                                 Platform.runLater(() -> {
-                                    Alert alert = new Alert(Alert.AlertType.INFORMATION);
-                                    alert.setTitle("登录失败");
-                                    alert.setContentText("错误的用户名或密码，\n请确认后再试");
-                                    DialogPane dialogPane = alert.getDialogPane();
-                                    dialogPane.setHeaderText("");
-                                    dialogPane.setGraphic(null);
-                                    alert.showAndWait();
+                                    createAlert("登录失败","错误的用户名或密码，\n请确认后再试");
                                 });
                             }
                             break;
                         case register:
                             if (msg.getData().equals("same")) {
                                 Platform.runLater(() -> {
-                                    Alert alert = new Alert(Alert.AlertType.INFORMATION);
-                                    alert.setTitle("注册失败");
-                                    alert.setContentText(
-                                        "该用户名已经被占用，\n请尝试使用其他用户名");
-                                    DialogPane dialogPane = alert.getDialogPane();
-                                    dialogPane.setHeaderText("");
-                                    dialogPane.setGraphic(null);
-                                    alert.showAndWait();
+                                    createAlert("注册失败","该用户名已经被占用，\n请尝试使用其他用户名");
                                 });
                             } else if (msg.getData().equals("null")) {
                                 Platform.runLater(() -> {
-                                    Alert alert = new Alert(Alert.AlertType.INFORMATION);
-                                    alert.setTitle("注册失败");
-                                    alert.setContentText("请不要使用空用户名或密码");
-                                    DialogPane dialogPane = alert.getDialogPane();
-                                    dialogPane.setHeaderText("");
-                                    dialogPane.setGraphic(null);
-                                    alert.showAndWait();
+                                    createAlert("注册失败","请不要使用空用户名或密码");
                                 });
                             } else {
                                 Platform.runLater(() -> {
-                                    Alert alert = new Alert(Alert.AlertType.INFORMATION);
-                                    alert.setTitle("注册成功");
-                                    alert.setContentText(
-                                        String.format("用户名:%s\n密码:%s", username, password));
-                                    DialogPane dialogPane = alert.getDialogPane();
-                                    dialogPane.setHeaderText("");
-                                    dialogPane.setGraphic(null);
-                                    alert.showAndWait();
+                                    createAlert("注册成功",String.format("用户名:%s\n密码:%s", username, password));
                                 });
                             }
                             break;
@@ -179,6 +147,9 @@ public class Sender implements Runnable {
                 }
             }
         } catch (SocketException e) {
+            Platform.runLater(()->{
+                if(con == null) createAlert("连接失败","服务器未启动关闭");
+            });
             System.out.println("Socket已经关闭");
         } catch (IOException | ClassNotFoundException e) {
             throw new RuntimeException(e);
@@ -186,11 +157,23 @@ public class Sender implements Runnable {
             try {
                 close();
             } catch (IOException e) {
-                throw new RuntimeException(e);
+                Platform.runLater(()->{
+                    Notification notification = new Notification(MessageType.close);
+                    Main.getPrimaryStage().close();
+                });
+                //throw new RuntimeException(e);
             }
         }
     }
-
+    public static void createAlert(String title,String content){
+        Alert alert = new Alert(Alert.AlertType.INFORMATION);
+        alert.setTitle(title);
+        alert.setContentText(content);
+        DialogPane dialogPane = alert.getDialogPane();
+        dialogPane.setHeaderText("");
+        dialogPane.setGraphic(null);
+        alert.showAndWait();
+    }
     public static void send(Message msg) throws IOException {
         out.writeObject(msg);
         out.flush();

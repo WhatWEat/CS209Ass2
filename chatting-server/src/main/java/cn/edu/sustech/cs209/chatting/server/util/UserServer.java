@@ -142,8 +142,12 @@ public class UserServer implements Runnable {
                         System.out.println(msg.getSentBy()+"发送了群组消息"+msg.getData());
                         break;
                 }
-                outList.get(i).writeObject(msg);
-                outList.get(i).flush();
+                ObjectOutputStream out = outList.get(i);
+                if(out != null){
+                    out.writeObject(msg);
+                } else {
+                    outList.remove(i);
+                }
             } catch (IOException e) {
                 System.out.println(i+"该用户已经下号了");
                 throw new RuntimeException(e);

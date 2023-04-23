@@ -35,6 +35,7 @@ public class Notification {
     private CustomStage stage;
     private MessageType type;
     private Timeline timeline;
+    private double time = 2;
     public Notification(MessageType type) {
         this.type = type;
         initStage();
@@ -63,7 +64,7 @@ public class Notification {
         timeline = new Timeline();
         timeline.setCycleCount(1);
         timeline.setAutoReverse(false);
-        Duration duration = Duration.seconds(2);
+        Duration duration = Duration.seconds(time);
         int frames = 60;
         double interval = duration.toMillis() / frames;
         double opacityDelta = 1.0 / frames;
@@ -89,6 +90,9 @@ public class Notification {
                 rectangleColor.setStyle("-fx-fill: #7cd270");
                 lblTitle.setStyle("-fx-text-fill: #57c557");
                 break;
+            case close:
+                setContent("服务器已经关闭", "现在将关闭客户端，稍后再试试吧.");
+                time = 4;
             case disconnect:
                 image = new Image(
                     Objects.requireNonNull(getClass().getResourceAsStream("../image/disconnect.png")));

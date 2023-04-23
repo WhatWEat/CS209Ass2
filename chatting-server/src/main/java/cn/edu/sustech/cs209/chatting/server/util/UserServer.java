@@ -51,12 +51,14 @@ public class UserServer implements Runnable {
                 }
             }
         } catch (IOException | ClassNotFoundException e) {
+            System.out.println("用户强制下线");
             throw new RuntimeException(e);
         } finally {
             try {
                 close();
             } catch (IOException e) {
-                throw new RuntimeException(e);
+                System.out.println("该socket已经关闭");
+//                throw new RuntimeException(e);
             }
         }
     }

@@ -17,7 +17,11 @@ import javafx.scene.control.Alert;
 import javafx.scene.control.DialogPane;
 import javafx.stage.Stage;
 import javafx.stage.StageStyle;
-
+/* TODO Exception
+    server crash: in login stage, in userlist stage
+    client down: other client can receive the message
+    History:
+* */
 public class Sender implements Runnable {
 
     public static final int port = 25565;
@@ -39,7 +43,6 @@ public class Sender implements Runnable {
         this.password = password;
         this.register = register;
     }
-
     @Override
     public void run() {
         try {
@@ -57,6 +60,7 @@ public class Sender implements Runnable {
                 Message msg = (Message) in.readObject();
                 if (msg != null) {
                     switch (msg.getType()) {
+                        case file:
                         case chat:
                             Platform.runLater(() -> {
                                 con.addMessage(msg);
@@ -73,13 +77,12 @@ public class Sender implements Runnable {
                             break;
                         case online:
                             Platform.runLater(() -> {
-                                for (String i : msg.getSendTo()) {
-                                    if (i.equals("ALL") || i.equals(username)) {
-                                    } else {
-                                        System.out.println("添加" + i);
-                                        con.addOnline(new User(i));
-                                    }
+                                ArrayList<String> sendTo = msg.getSendTo();
+                                for (String i : sendTo) {
+                                    System.out.println("添加上号:" + i);
+                                    con.addOnline(new User(i));
                                 }
+                                System.out.println("online");
                             });
                             break;
                         case disconnect:
@@ -101,6 +104,8 @@ public class Sender implements Runnable {
                             if (data.equals("true")) {
                                 Platform.runLater(() -> {
                                     Stage now = Main.getPrimaryStage();
+                                    UserlistController.thisuser = new User(username);
+                                    FileOperator.readUserList();
                                     FXMLLoader fxmlLoader = new FXMLLoader(
                                         getClass().getResource("../view/userlist.fxml"));
                                     try {
@@ -111,61 +116,30 @@ public class Sender implements Runnable {
                                     con = fxmlLoader.getController();
                                     now.show();
                                     con.getOnline(username);
+                                    System.out.println("connection");
                                 });
                             } else if (data.equals("same")) {
                                 Platform.runLater(() -> {
-                                    Alert alert = new Alert(Alert.AlertType.INFORMATION);
-                                    alert.setTitle("登录失败");
-                                    alert.setContentText("该用户已经在线，\n请确认后再试");
-                                    DialogPane dialogPane = alert.getDialogPane();
-                                    dialogPane.setHeaderText("");
-                                    dialogPane.setGraphic(null);
-                                    alert.showAndWait();
+                                    createAlert("登录失败","该用户已经在线，\n请确认后再试");
                                 });
                             } else {
                                 Platform.runLater(() -> {
-                                    Alert alert = new Alert(Alert.AlertType.INFORMATION);
-                                    alert.setTitle("登录失败");
-                                    alert.setContentText("错误的用户名或密码，\n请确认后再试");
-                                    DialogPane dialogPane = alert.getDialogPane();
-                                    dialogPane.setHeaderText("");
-                                    dialogPane.setGraphic(null);
-                                    alert.showAndWait();
+                                    createAlert("登录失败","错误的用户名或密码，\n请确认后再试");
                                 });
                             }
                             break;
                         case register:
                             if (msg.getData().equals("same")) {
                                 Platform.runLater(() -> {
-                                    Alert alert = new Alert(Alert.AlertType.INFORMATION);
-                                    alert.setTitle("注册失败");
-                                    alert.setContentText(
-                                        "该用户名已经被占用，\n请尝试使用其他用户名");
-                                    DialogPane dialogPane = alert.getDialogPane();
-                                    dialogPane.setHeaderText("");
-                                    dialogPane.setGraphic(null);
-                                    alert.showAndWait();
+                                    createAlert("注册失败","该用户名已经被占用，\n请尝试使用其他用户名");
                                 });
                             } else if (msg.getData().equals("null")) {
                                 Platform.runLater(() -> {
-                                    Alert alert = new Alert(Alert.AlertType.INFORMATION);
-                                    alert.setTitle("注册失败");
-                                    alert.setContentText("请不要使用空用户名或密码");
-                                    DialogPane dialogPane = alert.getDialogPane();
-                                    dialogPane.setHeaderText("");
-                                    dialogPane.setGraphic(null);
-                                    alert.showAndWait();
+                                    createAlert("注册失败","请不要使用空用户名或密码");
                                 });
                             } else {
                                 Platform.runLater(() -> {
-                                    Alert alert = new Alert(Alert.AlertType.INFORMATION);
-                                    alert.setTitle("注册成功");
-                                    alert.setContentText(
-                                        String.format("用户名:%s\n密码:%s", username, password));
-                                    DialogPane dialogPane = alert.getDialogPane();
-                                    dialogPane.setHeaderText("");
-                                    dialogPane.setGraphic(null);
-                                    alert.showAndWait();
+                                    createAlert("注册成功",String.format("用户名:%s\n密码:%s", username, password));
                                 });
                             }
                             break;
@@ -173,6 +147,9 @@ public class Sender implements Runnable {
                 }
             }
         } catch (SocketException e) {
+            Platform.runLater(()->{
+                if(con == null) createAlert("连接失败","服务器未启动关闭");
+            });
             System.out.println("Socket已经关闭");
         } catch (IOException | ClassNotFoundException e) {
             throw new RuntimeException(e);
@@ -180,11 +157,23 @@ public class Sender implements Runnable {
             try {
                 close();
             } catch (IOException e) {
-                throw new RuntimeException(e);
+                Platform.runLater(()->{
+                    Notification notification = new Notification(MessageType.close);
+                    Main.getPrimaryStage().close();
+                });
+                //throw new RuntimeException(e);
             }
         }
     }
-
+    public static void createAlert(String title,String content){
+        Alert alert = new Alert(Alert.AlertType.INFORMATION);
+        alert.setTitle(title);
+        alert.setContentText(content);
+        DialogPane dialogPane = alert.getDialogPane();
+        dialogPane.setHeaderText("");
+        dialogPane.setGraphic(null);
+        alert.showAndWait();
+    }
     public static void send(Message msg) throws IOException {
         out.writeObject(msg);
         out.flush();

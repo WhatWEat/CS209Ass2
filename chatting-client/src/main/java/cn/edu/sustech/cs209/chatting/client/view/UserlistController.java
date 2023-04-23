@@ -1,5 +1,6 @@
 package cn.edu.sustech.cs209.chatting.client.view;
 
+import cn.edu.sustech.cs209.chatting.client.util.FileOperator;
 import cn.edu.sustech.cs209.chatting.client.util.Group;
 import cn.edu.sustech.cs209.chatting.client.util.Notification;
 import cn.edu.sustech.cs209.chatting.client.util.Sender;
@@ -8,8 +9,11 @@ import cn.edu.sustech.cs209.chatting.common.Message;
 import cn.edu.sustech.cs209.chatting.common.MessageType;
 import java.io.IOException;
 import java.net.URL;
+import java.nio.file.Files;
+import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Base64;
 import java.util.Comparator;
 import java.util.HashMap;
 import java.util.Objects;
@@ -52,7 +56,7 @@ public class UserlistController implements Initializable {
     private Label currentUsername;
     @FXML
     private ListView<User> chatList;
-    public User thisuser;
+    public static User thisuser;
     public static ObservableList<User> userList;
     public static HashMap<ArrayList<String>,Stage> stages = new HashMap<>();
     private final ArrayList<User> nowGroup = new ArrayList<>();
@@ -61,9 +65,8 @@ public class UserlistController implements Initializable {
 
     @Override
     public void initialize(URL url, ResourceBundle resourceBundle) {
-        userList = FXCollections.observableArrayList();
-        chatList.setItems(userList);
         chatList.setCellFactory(new UserCellFactory());
+        chatList.setItems(userList);
     }
     public void addMessage(Message msg){
         Controller nowCons = cons.get(msg.getSendTo());
@@ -77,9 +80,30 @@ public class UserlistController implements Initializable {
                 });
             }
         }
+
         if(nowCons!=null){
+            for(User i:userList){
+                if(i.getUsername().equals(msg.getSentBy())){
+                    i.setLastMessage(-System.currentTimeMillis());
+                }
+            }
+            if(msg.getSendTo().size()==2){
+                String name = msg.getSendTo().get(0).equals(thisuser.getUsername())?
+                        msg.getSendTo().get(1):msg.getSendTo().get(0);
+                for(User i:userList){
+                    if(i.getUsername().equals(name)){
+                        i.setLastMessage(-System.currentTimeMillis());
+                    }
+                }
+            }
             nowCons.addMessage(msg);
         }
+
+        userList.sort(User.userComparator);
+        ObservableList<User> users = FXCollections.observableArrayList();
+        users.addAll(userList);
+        chatList.setCellFactory(new UserCellFactory());
+        chatList.setItems(users);
     }
     public synchronized void addOnline(User user){
         ObservableList<User> users = FXCollections.observableArrayList();
@@ -100,6 +124,7 @@ public class UserlistController implements Initializable {
             Notification notification = new Notification(MessageType.online);
             notification.setContent("用户"+user.getUsername()+"上线了","点击用户名即可聊天");
         });
+        users.sort(User.userComparator);
         //refresh the userList in every chat window
         for(Controller i:cons.values()){
             i.refresh();
@@ -147,14 +172,24 @@ public class UserlistController implements Initializable {
             event.consume();
             stage.hide();
         });
+//        if(usernames.size()==2){
+//            stage.setTitle("正在和"+usernames.get(0)+"聊天");
+//        } else {
+//            stage.setTitle(String.format("%s,%s,%s等的群组聊天(%d)",usernames.get(0),usernames.get(1),usernames.get(2),
+//                usernames.size()));
+//        }
         Controller nowCon = loader.getController();
-        //create a new group instance
-        Group group = new Group(usernames);
+        //read from the file
+        Group group = FileOperator.readGroupList(usernames);
+        FileOperator.saveGroupList(group);
+
         Controller.thisuser = thisuser;
         cons.put(group.getGroupMember(),nowCon);
+
         nowCon.setGroup(group);
-        System.out.println(nowGroup);
         nowCon.initUserList(userList);
+        nowCon.initMessageList();
+
         //nowGroup.forEach(user -> user.getGroups().add(group));
         stages.put(usernames,stage);
         Sender.send(new Message(0L, thisuser.getUsername(), usernames,"start",MessageType.createGroup));
@@ -182,11 +217,20 @@ public class UserlistController implements Initializable {
         ArrayList<String> usernames = new ArrayList<>();
         usernames.add(username.getUsername());
         usernames.add(thisuser.getUsername());
-        createChat(usernames);
+        usernames.sort(Comparator.naturalOrder());
+        Group group = FileOperator.readGroupList(usernames);
+        if(!group.getHistory().isEmpty() || username.isOnline()){
+            createChat(usernames);
+        }else{
+            Alert alert = new Alert(AlertType.INFORMATION);
+            alert.setTitle("提示");
+            alert.setHeaderText(null);
+            alert.setContentText("你与该用户不存在聊天记录，且该用户不在线");
+            alert.showAndWait();
+        }
     }
     public void getOnline(String username){
-        thisuser = new User(username);
-        addOnline(thisuser);
+        if(userList.isEmpty()) addOnline(thisuser);
         currentUsername.setText(username);
     }
     /*
@@ -208,6 +252,8 @@ public class UserlistController implements Initializable {
                 public void updateItem(User user, boolean empty) {
                     super.updateItem(user, empty);
                     if (empty || Objects.isNull(user)) {
+                        setText(null);
+                        setGraphic(null);
                         return;
                     }
 
@@ -233,7 +279,6 @@ public class UserlistController implements Initializable {
                     //name
                     nameLabel.setPrefSize(50, 20);
                     nameLabel.setWrapText(true);
-//                    nameLabel.setStyle("-fx-border-color: black; -fx-border-width: 1px;");
                     //double click
                     EventHandler<MouseEvent> doubleClickHandler = event -> {
                         if (event.getClickCount() == 2) {
@@ -268,11 +313,12 @@ public class UserlistController implements Initializable {
                                 }
                             });
                             wrapper.getChildren().add(toChat);
-                            //deal with private click
-                            nameLabel.setOnMouseClicked(doubleClickHandler);
-                            infoLabel.setOnMouseClicked(doubleClickHandler);
                         }
                     }
+                    //deal with private click
+                    nameLabel.setOnMouseClicked(doubleClickHandler);
+                    infoLabel.setOnMouseClicked(doubleClickHandler);
+                    //add to wrapper
                     wrapper.getChildren().addAll(pictureView,statusImageView,infoLabel, nameLabel);
                     setContentDisplay(ContentDisplay.GRAPHIC_ONLY);
                     setGraphic(wrapper);

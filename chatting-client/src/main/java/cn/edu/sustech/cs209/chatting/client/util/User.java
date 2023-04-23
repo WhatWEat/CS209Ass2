@@ -1,24 +1,24 @@
 package cn.edu.sustech.cs209.chatting.client.util;
 
+import cn.edu.sustech.cs209.chatting.client.view.UserlistController;
 import java.io.Serializable;
 import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.Objects;
 
-public class User implements Serializable {
+public class User implements Serializable{
     String picture = "default";
     String username;
-
+    long lastMessage = 0L;
     boolean online = false;
-    ArrayList<Group> groups = new ArrayList<>();
-
+    public static Comparator<User> userComparator = (e1, e2) -> {
+        if (e1.equals(UserlistController.thisuser)) return -1;
+        else if (e2.equals(UserlistController.thisuser)) return 1;
+        else return Long.compare(e1.getLastMessage(), e2.getLastMessage());
+    };
     public User(String username) {
         this.username = username;
         this.online = true;
-    }
-
-    public User(String username, ArrayList<Group> groups) {
-        this.username = username;
-        this.groups = groups;
     }
 
     public String getUsername() {
@@ -27,10 +27,6 @@ public class User implements Serializable {
 
     public String getPicture() {
         return picture;
-    }
-
-    public ArrayList<Group> getGroups() {
-        return groups;
     }
 
     public void setPicture(String picture) {
@@ -57,8 +53,17 @@ public class User implements Serializable {
         return Objects.equals(username, user.username);
     }
 
+    public void setLastMessage(long lastMessage) {
+        this.lastMessage = lastMessage;
+    }
+
+    public long getLastMessage() {
+        return lastMessage;
+    }
+
     @Override
     public int hashCode() {
         return Objects.hash(username);
     }
+
 }

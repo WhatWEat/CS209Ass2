@@ -163,6 +163,7 @@ public class Sender implements Runnable {
         close();
       } catch (IOException e) {
         Platform.runLater(() -> {
+          FileOperator.saveUserList();
           UserlistController.stages.values().forEach(Stage::close);
           Notification notification = new Notification(MessageType.close);
           Main.getPrimaryStage().close();

@@ -53,7 +53,7 @@ public class UserServer implements Runnable {
       }
     } catch (IOException | ClassNotFoundException e) {
       System.out.println("用户强制下线");
-      throw new RuntimeException(e);
+//      throw new RuntimeException(e);
     } finally {
       try {
         close();
@@ -77,7 +77,7 @@ public class UserServer implements Runnable {
           username = msg.getSentBy();
           outList.put(username, out);
           ArrayList<String> userList = new ArrayList<>(outList.keySet());
-          sendALL(new Message(0L, "Server", userList, user, MessageType.online));
+          sendALL(new Message(0L, user, userList, user, MessageType.online));
           sendALL(new Message(0L, "Server", "ALL", String.valueOf(outList.size()),
               MessageType.disconnect));
           System.out.println("right answer 在线人数" + outList.size() + " 上号:" + user);

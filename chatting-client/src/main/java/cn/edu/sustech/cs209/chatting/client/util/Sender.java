@@ -73,17 +73,20 @@ public class Sender implements Runnable {
                 try {
                   con.createChat(msg.getSendTo());
                 } catch (IOException e) {
-                  throw new RuntimeException(e);
+                  System.out.println("创建群聊失败");
                 }
               });
               break;
             case online:
               Platform.runLater(() -> {
+                String online = msg.getSentBy();
                 ArrayList<String> sendTo = msg.getSendTo();
                 for (String i : sendTo) {
                   System.out.println("添加上号:" + i);
                   con.addOnline(new User(i));
                 }
+                Notification notification = new Notification(MessageType.online);
+                notification.setContent("用户" + online + "上线了", "点击用户名即可聊天");
                 System.out.println("online");
               });
               break;
@@ -113,7 +116,7 @@ public class Sender implements Runnable {
                   try {
                     now.setScene(new Scene(fxmlLoader.load()));
                   } catch (IOException e) {
-                    throw new RuntimeException(e);
+                    System.out.println("无法加载userlist.fxml");
                   }
                   con = fxmlLoader.getController();
                   now.show();

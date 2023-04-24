@@ -122,10 +122,6 @@ public class UserlistController implements Initializable {
       System.out.println("不存在" + user.getUsername());
       users.add(user);
     }
-    Platform.runLater(() -> {
-      Notification notification = new Notification(MessageType.online);
-      notification.setContent("用户" + user.getUsername() + "上线了", "点击用户名即可聊天");
-    });
     users.sort(User.userComparator);
     //refresh the userList in every chat window
     for (Controller i : cons.values()) {

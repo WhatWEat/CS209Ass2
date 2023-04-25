@@ -172,12 +172,13 @@ public class UserlistController implements Initializable {
       event.consume();
       stage.hide();
     });
-//        if(usernames.size()==2){
-//            stage.setTitle("正在和"+usernames.get(0)+"聊天");
-//        } else {
-//            stage.setTitle(String.format("%s,%s,%s等的群组聊天(%d)",usernames.get(0),usernames.get(1),usernames.get(2),
-//                usernames.size()));
-//        }
+    if (usernames.size() == 2) {
+      stage.setTitle("正在和" + usernames.get(0) + "聊天");
+    } else {
+      stage.setTitle(String.format("%s,%s,%s等的群组聊天(%d)", usernames.get(0), usernames.get(1),
+          usernames.get(2),
+          usernames.size()));
+    }
     Controller nowCon = loader.getController();
     //read from the file
     Group group = FileOperator.readGroupList(usernames);
@@ -234,9 +235,9 @@ public class UserlistController implements Initializable {
   }
 
   public void getOnline(String username) {
-      if (userList.isEmpty()) {
-          addOnline(thisuser);
-      }
+    if (userList.isEmpty()) {
+      addOnline(thisuser);
+    }
     currentUsername.setText(username);
   }
 
@@ -278,9 +279,9 @@ public class UserlistController implements Initializable {
           //status
           ImageView statusImageView = new ImageView();
           String status = "offline";
-            if (user.isOnline()) {
-                status = "online";
-            }
+          if (user.isOnline()) {
+            status = "online";
+          }
           Image statusImage = new Image(
               Objects.requireNonNull(this.getClass()
                       .getResource(String.format("../image/%s.png", status)))
